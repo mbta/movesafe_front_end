@@ -1,0 +1,16 @@
+{
+	"name": "@repo/constants",
+	"version": "0.1.0",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./messages": "./src/messages.ts",
+		"./constants": "./src/constants.ts",
+		"./screens": "./src/screens.ts"
+	},
+	"scripts": {
+		"lint": "eslint . --max-warnings 0"
+	},
+	"dependencies": {},
+	"devDependencies": {}
+}
