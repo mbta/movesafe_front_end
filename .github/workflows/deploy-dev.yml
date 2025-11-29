@@ -21,5 +21,3 @@ jobs:
       web-bucket: web-dev-rdi-mbta-0
       mobile-bucket: mobile-dev-rdi-mbta-0
     secrets: inherit
-    # Environment protection (required reviewers, deployment approvals, etc.) is configured in
-    # the repository settings (Settings > Environments > dev).

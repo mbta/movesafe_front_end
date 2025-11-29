@@ -19,6 +19,3 @@ jobs:
       web-bucket: s3-bck-mbta-frontend-web-prod
       mobile-bucket: s3-bck-mbta-frontend-mobile-prod
     secrets: inherit
-    environment:
-      name: prod
-      # Production deployments should enforce required reviewers (configured in repo settings).
