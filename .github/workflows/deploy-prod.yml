@@ -1,0 +1,24 @@
+name: Deploy to Production
+
+on:
+  release:
+    types:
+      - released
+
+concurrency:
+  group: front-prod
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    uses: ./.github/workflows/deploy.yml
+    with:
+      env: prod
+      version-name: ${{ github.ref_name }}
+      web-bucket: s3-bck-mbta-frontend-web-prod
+      mobile-bucket: s3-bck-mbta-frontend-mobile-prod
+    secrets: inherit
+    environment:
+      name: prod
+      # Production deployments should enforce required reviewers (configured in repo settings).

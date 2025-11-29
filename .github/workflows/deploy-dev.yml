@@ -1,0 +1,25 @@
+name: Deploy to Development
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - feat/migration_ci_cd
+
+concurrency:
+  group: front-dev
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Development
+    uses: ./.github/workflows/deploy.yml
+    with:
+      env: dev
+      version-name: ${{ github.ref_name }}
+      web-bucket: s3-bck-mbta-frontend-web
+      mobile-bucket: s3-bck-mbta-frontend-mobile
+    secrets: inherit
+    # Environment protection (required reviewers, deployment approvals, etc.) is configured in
+    # the repository settings (Settings > Environments > dev).
