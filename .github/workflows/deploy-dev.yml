@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - feat/migration_ci_cd
+      - feat/migration_ci_cd # FOR TESTING PURPOSES ONLY
 
 concurrency:
   group: front-dev
