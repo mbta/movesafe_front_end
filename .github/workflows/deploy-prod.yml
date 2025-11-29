@@ -16,6 +16,6 @@ jobs:
     with:
       env: prod
       version-name: ${{ github.ref_name }}
-      web-bucket: s3-bck-mbta-frontend-web-prod
-      mobile-bucket: s3-bck-mbta-frontend-mobile-prod
+      web-bucket: web-prd-rdi-mbta-0
+      mobile-bucket: mobile-prd-rdi-mbta-0
     secrets: inherit
