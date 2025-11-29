@@ -18,8 +18,8 @@ jobs:
     with:
       env: dev
       version-name: ${{ github.ref_name }}
-      web-bucket: s3-bck-mbta-frontend-web
-      mobile-bucket: s3-bck-mbta-frontend-mobile
+      web-bucket: web-dev-rdi-mbta-0
+      mobile-bucket: mobile-dev-rdi-mbta-0
     secrets: inherit
     # Environment protection (required reviewers, deployment approvals, etc.) is configured in
     # the repository settings (Settings > Environments > dev).
