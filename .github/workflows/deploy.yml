@@ -30,14 +30,20 @@ on:
 jobs:
   deploy:
     name: Deploy to ${{ inputs.env }}
-    runs-on: ubuntu-latest
     timeout-minutes: 30
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
     environment: ${{ inputs.env }}
 
     steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.aws-region }}
+
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
@@ -56,12 +62,6 @@ jobs:
 
       - name: Enable corepack
         run: corepack enable
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ inputs.aws-region }}
 
       - name: Install dependencies
         working-directory: src
@@ -98,6 +98,6 @@ jobs:
           job-status: ${{ job.status }}
           custom-message: |
             Deployed MoveSafe Front End (${{ inputs.env }})
-            Web bucket: ${{ inputs.web-bucket }}
-            Mobile bucket: ${{ inputs.mobile-bucket }}
-            Version: ${{ inputs.version-name }}
+            📦 Web bucket: ${{ inputs.web-bucket }}
+            📦 Mobile bucket: ${{ inputs.mobile-bucket }}
+            🔖 Version: ${{ inputs.version-name }}
