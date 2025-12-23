@@ -69,10 +69,20 @@ jobs:
 
       - name: Build web app
         working-directory: src
+        env:
+          NEXT_PUBLIC_KEYCLOAK_ADDRESS: ${{ vars.NEXT_PUBLIC_KEYCLOAK_ADDRESS }}
+          NEXT_PUBLIC_KEYCLOAK_REALM: ${{ vars.NEXT_PUBLIC_KEYCLOAK_REALM }}
+          NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: ${{ vars.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
         run: corepack yarn build:web
 
       - name: Build mobile app
         working-directory: src
+        env:
+          NEXT_PUBLIC_KEYCLOAK_ADDRESS: ${{ vars.NEXT_PUBLIC_KEYCLOAK_ADDRESS }}
+          NEXT_PUBLIC_KEYCLOAK_REALM: ${{ vars.NEXT_PUBLIC_KEYCLOAK_REALM }}
+          NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: ${{ vars.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
         run: corepack yarn build:mobile
 
       - name: Sync web output to S3
