@@ -219,6 +219,7 @@ const PDFDocument: React.FC<{ data: IPDFData }> = ({ data }) => {
                           <View
                             key={question.id}
                             style={styles.formQuestionsSection}
+                            wrap={false}
                           >
                             <View style={styles.questionSection}>
                               <Text style={styles.textContent}>
@@ -243,7 +244,11 @@ const PDFDocument: React.FC<{ data: IPDFData }> = ({ data }) => {
         <View style={styles.section}>
           {data.signatures &&
             data.signatures.map((signature, index) => (
-              <View key={signature.uri} style={styles.signatureItemSection}>
+              <View
+                key={signature.uri}
+                style={styles.signatureItemSection}
+                wrap={false}
+              >
                 <View key={index} style={styles.headerItemSection}>
                   <Text style={styles.textContent}>
                     {stringFormatter.toCapitalLetter(signature.signature_type)}
@@ -272,8 +277,8 @@ const PDFDocument: React.FC<{ data: IPDFData }> = ({ data }) => {
                   new Date(a.created_at).getTime()
               )
               .map((historyItem, index) => (
-                <View style={styles.auditLogSection}>
-                  <View style={styles.headerItemSection}>
+                <View key={index} style={styles.auditLogSection} wrap={false}>
+                  <View style={styles.historyDateCol}>
                     <Text style={styles.textTitle}>
                       {messages.PDF.createdAt}
                     </Text>
@@ -281,13 +286,13 @@ const PDFDocument: React.FC<{ data: IPDFData }> = ({ data }) => {
                       {dateFormatter.formatDateTime(historyItem.created_at)}
                     </Text>
                   </View>
-                  <View style={styles.headerItemSection}>
+                  <View style={styles.historyUserCol}>
                     <Text style={styles.textTitle}>{messages.PDF.user}</Text>
                     <Text style={styles.subHeader}>
                       {historyItem.user.name}
                     </Text>
                   </View>
-                  <View style={styles.headerItemSection}>
+                  <View style={styles.historyActionCol}>
                     <Text style={styles.textTitle}>{messages.PDF.action}</Text>
                     <Text style={styles.subHeader}>
                       {stringFormatter.formatEmployeeAction(historyItem.action)}

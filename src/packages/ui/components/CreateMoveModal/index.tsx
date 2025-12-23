@@ -49,6 +49,7 @@ interface CreateMoveModalProps {
 interface ISelectOption {
   reasonMove: string;
   yardMotorperson: string;
+  yardMotorpersonId?: string | null;
   tags: ITag[];
   items: ISelectOptionItem[];
 }
@@ -223,7 +224,7 @@ const CreateMoveModal: React.FC<CreateMoveModalProps> = ({
         move_to: item.to,
         priority_order: Number(item.moveOrder),
         yard_id: yardId,
-        yardmaster_user_id: selectedOptions.yardMotorperson,
+        yardMotorperson_user_id: selectedOptions.yardMotorpersonId,
         tag_ids: selectedOptions.tags.map((tag) => tag.id).filter(Boolean),
       };
     });
@@ -264,10 +265,11 @@ const CreateMoveModal: React.FC<CreateMoveModalProps> = ({
                 }))}
                 size="full"
                 width={isMobile ? "85%" : "90%"}
-                onChange={(value) => {
+                onChange={(label, id) => {
                   setSelectedOptions((prev) => ({
                     ...prev,
-                    yardMotorperson: value.toString(),
+                    yardMotorperson: label.toString(),
+                    yardMotorpersonId: id,
                   }));
                 }}
               />

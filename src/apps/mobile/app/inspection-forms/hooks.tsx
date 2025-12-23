@@ -619,9 +619,13 @@ const useInspectionForms = () => {
     move.status === MoveStatus.done ||
     move.status === MoveStatus.inspection_failed;
 
+  const onBackButtonClick = () => {
+    router.push(ScreenNames.taskPanel);
+  };
+
   const onConfirmModalCancelledMoveClick = (): void => {
     setShowSuccessToast(true);
-    router.back();
+    onBackButtonClick();
     setAssignedMove(null);
   };
 
@@ -651,12 +655,8 @@ const useInspectionForms = () => {
     }
 
     setShowSuccessToast(true);
-    router.back();
+    onBackButtonClick();
     setAssignedMove(null);
-  };
-
-  const onBackButtonClick = () => {
-    router.back();
   };
 
   return {

@@ -1,71 +1,140 @@
 "use client";
-import React, { ReactNode } from "react";
-import { IoIosCloseCircleOutline } from "react-icons/io";
+import { MoveStatus } from "@repo/constants/constants";
+import messages from "@repo/constants/messages";
 import {
   IMoveDetailsInspection,
   IMoveDetailsInspectionFormQuestion,
   QuestionTypes,
 } from "@repo/models";
+import React, { ReactNode } from "react";
 import {
-  QuestionAnswerContainer,
-  QuestionDescriptionContainer,
-  LabelItem,
-  LabelsContainer,
-  QuestionContainer,
-  SectionLabel,
-  SerialNumbersContainer,
-  DefectAnswerContainer,
-  FailedLabel,
-  YesNoAnswer,
-  ColumnContainer,
-  MotorPersonSideAnswerContainer,
-  MotorPersonSideLabel,
-  MinorDefectAnswerContainer,
+  IoIosCheckmarkCircleOutline,
+  IoIosCloseCircleOutline,
+  IoMdTime,
+} from "react-icons/io";
+import {
   AnswersContainer,
+  ColumnContainer,
+  CommentSection,
   CommentText,
   CommentTitle,
-  CommentSection,
+  DefectAnswerContainer,
+  FailedLabel,
+  LabelItem,
+  LabelsContainer,
+  MinorDefectAnswerContainer,
+  MotorPersonSideAnswerContainer,
+  MotorPersonSideLabel,
+  PendingAnswerContainer,
+  QuestionContainer,
+  QuestionDescriptionContainer,
+  SectionLabel,
+  SerialNumbersContainer,
+  SuccessAnswerContainer,
+  WaitingAnswerContainer,
+  YesNoAnswer,
 } from "./styles";
-import messages from "@repo/constants/messages";
 
 interface InspectionTabContentProps {
   data: IMoveDetailsInspection;
   moveCars: string[];
+  status: string;
 }
 
 interface QuestionAnswerProps {
   question: IMoveDetailsInspectionFormQuestion;
   moveCars: string[];
+  status: string;
 }
+
+const getUnansweredStatus = (moveStatus: string): "pending" | "waiting" => {
+  if (moveStatus === MoveStatus.pending_checklist) {
+    return "pending";
+  }
+  return "waiting";
+};
+
+const StatusBadge = ({
+  type,
+  label,
+}: {
+  type: "success" | "failed" | "waiting" | "pending";
+  label?: string;
+}) => {
+  switch (type) {
+    case "success":
+      return (
+        <SuccessAnswerContainer>
+          <IoIosCheckmarkCircleOutline size={18} />
+          <FailedLabel>{label || messages.Labels.passed}</FailedLabel>
+        </SuccessAnswerContainer>
+      );
+    case "failed":
+      return (
+        <DefectAnswerContainer>
+          <IoIosCloseCircleOutline size={18} />
+          <FailedLabel>{label || messages.Labels.failed}</FailedLabel>
+        </DefectAnswerContainer>
+      );
+    case "pending":
+      return (
+        <PendingAnswerContainer>
+          <IoMdTime size={18} />
+          <FailedLabel>{messages.Labels.pending}</FailedLabel>
+        </PendingAnswerContainer>
+      );
+    case "waiting":
+      return (
+        <WaitingAnswerContainer>
+          {messages.Labels.waiting}
+        </WaitingAnswerContainer>
+      );
+    default:
+      return null;
+  }
+};
 
 const SingleDefectQuestionAnswer = ({
   question,
   moveCars,
+  status,
 }: QuestionAnswerProps): ReactNode => {
   return moveCars.map((e) => {
     if (
       Array.isArray(question.selectedCars) &&
       question.selectedCars.includes(e)
-    )
-      return (
-        <DefectAnswerContainer>
-          <IoIosCloseCircleOutline />
-          <FailedLabel>failed</FailedLabel>
-        </DefectAnswerContainer>
-      );
-    else return <QuestionAnswerContainer key={e} />;
+    ) {
+      return <StatusBadge key={e} type="failed" />;
+    }
+
+    if (question.is_answered) {
+      return <StatusBadge key={e} type="success" />;
+    }
+
+    const unansweredStatus = getUnansweredStatus(status);
+    return <StatusBadge key={e} type={unansweredStatus} />;
   });
 };
 
-const YesNoQuestionAnswer = ({ question }: QuestionAnswerProps): ReactNode => {
-  if (typeof question.selectedCars !== "boolean" || !question.is_answered)
+const YesNoQuestionAnswer = ({
+  question,
+  status,
+}: QuestionAnswerProps): ReactNode => {
+  if (question.is_answered) {
+    if (typeof question.selectedCars === "boolean") {
+      return <YesNoAnswer>{question.selectedCars ? "NO" : "YES"}</YesNoAnswer>;
+    }
     return <></>;
-  return <YesNoAnswer>{question.selectedCars ? "NO" : "YES"}</YesNoAnswer>;
+  }
+
+  const unansweredStatus = getUnansweredStatus(status);
+  return <StatusBadge type={unansweredStatus} />;
 };
 
 const GuardSideMotorPersonQuestionAnswer = ({
   question,
   moveCars,
+  status,
 }: QuestionAnswerProps): ReactNode => {
   const isGuardSideDefect = (carSeriesNumber: string, answer: any): boolean => {
     return (
@@ -93,27 +162,27 @@ const GuardSideMotorPersonQuestionAnswer = ({
       <SerialNumbersContainer>
         <MotorPersonSideLabel>guard</MotorPersonSideLabel>
         {moveCars.map((e) => {
-          if (isGuardSideDefect(e, question.selectedCars))
-            return (
-              <DefectAnswerContainer>
-                <IoIosCloseCircleOutline />
-                <FailedLabel>failed</FailedLabel>
-              </DefectAnswerContainer>
-            );
-          else return <QuestionAnswerContainer key={e} />;
+          if (isGuardSideDefect(e, question.selectedCars)) {
+            return <StatusBadge key={e} type="failed" />;
+          }
+          if (question.is_answered) {
+            return <StatusBadge key={e} type="success" />;
+          }
+          const unansweredStatus = getUnansweredStatus(status);
+          return <StatusBadge key={e} type={unansweredStatus} />;
         })}
       </SerialNumbersContainer>
       <MotorPersonSideAnswerContainer>
         <MotorPersonSideLabel>motor person</MotorPersonSideLabel>
         {moveCars.map((e) => {
-          if (isMotorPersonSideDefect(e, question.selectedCars))
-            return (
-              <DefectAnswerContainer>
-                <IoIosCloseCircleOutline />
-                <FailedLabel>failed</FailedLabel>
-              </DefectAnswerContainer>
-            );
-          else return <QuestionAnswerContainer key={e} />;
+          if (isMotorPersonSideDefect(e, question.selectedCars)) {
+            return <StatusBadge key={e} type="failed" />;
+          }
+          if (question.is_answered) {
+            return <StatusBadge key={e} type="success" />;
+          }
+          const unansweredStatus = getUnansweredStatus(status);
+          return <StatusBadge key={e} type={unansweredStatus} />;
         })}
       </MotorPersonSideAnswerContainer>
     </ColumnContainer>
@@ -123,6 +192,7 @@ const GuardSideMotorPersonQuestionAnswer = ({
 const DoubleDefectQuestionAnswer = ({
   question,
   moveCars,
+  status,
 }: QuestionAnswerProps): ReactNode => {
   const isMinorDefect = (carSeriesNumber: string, answer: any): boolean => {
     return (
@@ -146,21 +216,21 @@ const DoubleDefectQuestionAnswer = ({
     <ColumnContainer>
       <SerialNumbersContainer>
         {moveCars.map((e) => {
-          if (isMinorDefect(e, question.selectedCars))
+          if (isMinorDefect(e, question.selectedCars)) {
             return (
-              <MinorDefectAnswerContainer>
-                <IoIosCloseCircleOutline />
-                <FailedLabel>failed</FailedLabel>
+              <MinorDefectAnswerContainer key={e}>
+                <IoIosCloseCircleOutline size={18} />
+                <FailedLabel>{messages.Labels.minor}</FailedLabel>
               </MinorDefectAnswerContainer>
             );
-          else if (isMajorDefect(e, question.selectedCars))
-            return (
-              <DefectAnswerContainer>
-                <IoIosCloseCircleOutline />
-                <FailedLabel>failed</FailedLabel>
-              </DefectAnswerContainer>
-            );
-          else return <QuestionAnswerContainer key={e} />;
+          } else if (isMajorDefect(e, question.selectedCars)) {
+            return <StatusBadge key={e} type="failed" />;
+          } else if (question.is_answered) {
+            return <StatusBadge key={e} type="success" />;
+          } else {
+            const unansweredStatus = getUnansweredStatus(status);
+            return <StatusBadge key={e} type={unansweredStatus} />;
+          }
         })}
       </SerialNumbersContainer>
     </ColumnContainer>
@@ -189,6 +259,7 @@ const QuestionAnswer = (props: QuestionAnswerProps): ReactNode => {
 const InspectionTabContent: React.FC<InspectionTabContentProps> = ({
   data,
   moveCars,
+  status,
 }) => {
   const inspectionName = data.inspection_form.short_name;
   return (
@@ -212,7 +283,11 @@ const InspectionTabContent: React.FC<InspectionTabContentProps> = ({
                   </QuestionDescriptionContainer>
                   <AnswersContainer>
                     <SerialNumbersContainer>
-                      <QuestionAnswer question={question} moveCars={moveCars} />
+                      <QuestionAnswer
+                        question={question}
+                        moveCars={moveCars}
+                        status={status}
+                      />
                     </SerialNumbersContainer>
                     {question.comments && (
                       <CommentSection>

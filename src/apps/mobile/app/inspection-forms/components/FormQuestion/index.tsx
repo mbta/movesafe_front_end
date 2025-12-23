@@ -1,22 +1,22 @@
-import { MdOutlineCancel } from "react-icons/md";
-import {
-  QuestionDoubleDefect,
-  QuestionSingleDefect,
-  QuestionYesNo,
-  QuestionGuardSideAndMotorPerson,
-  TrainIcon,
-  CommentDefectForm,
-} from "@repo/ui/components";
-import { colors, metrics } from "@repo/themes";
-import preTripQuestionOptions from "../../../../constants/preTripQuestionOptions";
 import {
   IAnswer,
   IInspectionAnswerDTO,
   IQuestionDoubleDefectAnswer,
   IQuestionGuardSideAndMotorPersonAnswer,
+  QuestionTypes,
 } from "@repo/models";
-import { QuestionTypes } from "@repo/models";
+import { colors, metrics } from "@repo/themes";
+import {
+  CommentDefectForm,
+  QuestionDoubleDefect,
+  QuestionGuardSideAndMotorPerson,
+  QuestionSingleDefect,
+  QuestionYesNo,
+  TrainIcon,
+} from "@repo/ui/components";
 import { ChangeEvent, useState } from "react";
+import { MdOutlineCancel } from "react-icons/md";
+import preTripQuestionOptions from "../../../../constants/preTripQuestionOptions";
 
 interface FormQuestionProps {
   question: IInspectionAnswerDTO;
@@ -29,7 +29,6 @@ const FormQuestion: React.FC<FormQuestionProps> = ({
   serialNumbers,
   onAnswer,
 }: FormQuestionProps) => {
-
   const [shouldShowCommentsInput, setShouldShowCommentsInput] =
     useState<boolean>(!!question.comments);
 
@@ -69,6 +68,20 @@ const FormQuestion: React.FC<FormQuestionProps> = ({
     onAnswer(answer);
   };
 
+  const renderCommentInput = () => {
+    if (!shouldShowCommentsInput) return null;
+    return (
+      <CommentDefectForm
+        questionComments={question.comments}
+        maxLength={250}
+        limitMessage="Limit of 250 characters."
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+          (question.comments = event?.target?.value)
+        }
+      />
+    );
+  };
+
   switch (question.question_type) {
     case QuestionTypes.SingleDefectQuestion:
       return (
@@ -80,19 +93,12 @@ const FormQuestion: React.FC<FormQuestionProps> = ({
             onSelectedCarsChange={(answer: IAnswer) =>
               onAnswerChange(answer, question)
             }
-            defaultIcon={<TrainIcon/>}
+            defaultIcon={<TrainIcon />}
             defectIcon={
               <MdOutlineCancel color={colors.white} size={metrics.iconBig} />
             }
           >
-            {shouldShowCommentsInput && (
-              <CommentDefectForm
-                questionComments={question.comments}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  (question.comments = event?.target?.value)
-                }
-              />
-            )}
+            {renderCommentInput()}
           </QuestionSingleDefect>
         </>
       );
@@ -110,14 +116,7 @@ const FormQuestion: React.FC<FormQuestionProps> = ({
             }
             options={preTripQuestionOptions}
           >
-            {shouldShowCommentsInput && (
-              <CommentDefectForm
-                questionComments={question.comments}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  (question.comments = event?.target?.value)
-                }
-              />
-            )}
+            {renderCommentInput()}
           </QuestionDoubleDefect>
         </>
       );
@@ -132,17 +131,12 @@ const FormQuestion: React.FC<FormQuestionProps> = ({
             serialNumbers={serialNumbers}
             initialSelectedCars={initialAnswer}
             onAnswer={(answer: IAnswer) => onAnswerChange(answer, question)}
-            defaultIcon={<TrainIcon/>}
-            defectIcon={<MdOutlineCancel size={metrics.iconBig} color={colors.white} />}
+            defaultIcon={<TrainIcon />}
+            defectIcon={
+              <MdOutlineCancel size={metrics.iconBig} color={colors.white} />
+            }
           >
-          {shouldShowCommentsInput && (
-            <CommentDefectForm
-              questionComments={question.comments}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                (question.comments = event?.target?.value)
-              }
-            />
-          )}
+            {renderCommentInput()}
           </QuestionGuardSideAndMotorPerson>
         </>
       );
@@ -156,14 +150,7 @@ const FormQuestion: React.FC<FormQuestionProps> = ({
             onNo={() => onAnswerChange(false, question)}
             onYes={() => onAnswerChange(true, question)}
           >
-            {shouldShowCommentsInput && (
-              <CommentDefectForm
-                questionComments={question.comments}
-                onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                  (question.comments = event?.target?.value)
-                }
-              />
-            )}
+            {renderCommentInput()}
           </QuestionYesNo>
         </>
       );

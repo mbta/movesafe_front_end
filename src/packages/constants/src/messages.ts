@@ -71,6 +71,13 @@ export default {
     instruction: "Instruction",
     completeInstructions: "For complete instructions, tap here.",
     tags: "Tags",
+    passed: "passed",
+    failed: "failed",
+    pending: "pending",
+    waiting: "waiting",
+    minor: "minor",
+    guardSide: "guard",
+    motorPersonSide: "motor person",
   },
   RailType: {
     heavyAndLight: "Heavy Rail and Light Rail",
@@ -234,7 +241,7 @@ export default {
     action: "Action",
     createdAt: "Created At",
     user: "User",
-    employeeHistory: "Employee History",
+    employeeHistory: "Move History",
   },
   FinishMove: {
     successMessage: "Move updated successfully",

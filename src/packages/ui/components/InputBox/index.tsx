@@ -1,6 +1,6 @@
 "use client";
-import React, { ChangeEvent } from "react";
-import { DefaultInput, InputTitle } from "./styles";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import { DefaultInput, InputTitle, LimitWarningText } from "./styles";
 
 interface InputProps {
   type?: string;
@@ -10,6 +10,8 @@ interface InputProps {
   inputTitle?: string;
   size?: "large" | "regular" | "small" | "login";
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
+  maxLength?: number;
+  limitMessage?: string;
 }
 
 const InputBox: React.FC<InputProps> = ({
@@ -20,7 +22,24 @@ const InputBox: React.FC<InputProps> = ({
   size = "large",
   onChange,
   initialValue,
+  maxLength,
+  limitMessage,
 }) => {
+  const [currentLength, setCurrentLength] = useState<number>(
+    value?.length || initialValue?.length || 0
+  );
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setCurrentLength(value.length);
+    }
+  }, [value]);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setCurrentLength(event.target.value.length);
+    if (onChange) onChange(event);
+  };
+
   return (
     <>
       {inputTitle && <InputTitle size={size}>{inputTitle}</InputTitle>}
@@ -28,10 +47,14 @@ const InputBox: React.FC<InputProps> = ({
         type={type}
         placeholder={placeholder}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         defaultValue={initialValue}
         size={size}
+        maxLength={maxLength}
       />
+      {maxLength && currentLength >= maxLength && limitMessage && (
+        <LimitWarningText>{limitMessage}</LimitWarningText>
+      )}
     </>
   );
 };

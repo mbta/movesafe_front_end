@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
-import { InputTitle, DataListInput, Content } from "./styles";
 import messages from "@repo/constants/messages";
+import React, { useState } from "react";
+import { Content, DataListInput, InputTitle } from "./styles";
 
 interface IHasId {
   id: string;
@@ -9,7 +9,7 @@ interface IHasId {
 
 interface InputProps<T extends IHasId> {
   inputTitle?: string;
-  onChange: (value: T | string) => void;
+  onChange: (value: T | string, id?: string) => void;
   options: SelectOption<T>[];
   disabled?: boolean;
   placeholder?: string;
@@ -39,11 +39,11 @@ const InputSelect = <T extends IHasId>({
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedOption = options.find((option) => {
-      return option.value.id === event.target.value;
+      return option.label === event.target.value;
     });
     if (selectedOption) {
       setInputValue(selectedOption.label);
-      onChange(selectedOption.value);
+      onChange(selectedOption.label, selectedOption.value.id);
     } else {
       setInputValue(event.target.value);
       onChange(event.target.value);

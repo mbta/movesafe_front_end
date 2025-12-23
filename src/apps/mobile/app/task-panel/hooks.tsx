@@ -1,30 +1,31 @@
-import { useState } from "react";
-import useYardsStore from "../stores/yard.store";
-import { IApiError, ICreateMove, IMove, IYard } from "@repo/models";
-import { useFormatDate } from "@repo/ui/hooks";
-import { useRouter } from "next/navigation";
-import { ScreenNames } from "@repo/constants/screens";
-import useMovesStore from "../stores/move.store";
-import useAuthStore from "../stores/auth.store";
-import messages from "@repo/constants/messages";
 import {
   LONG_REFETCH_TIME,
   SHORT_REFETCH_TIME,
 } from "@repo/constants/constants";
+import messages from "@repo/constants/messages";
+import { ScreenNames } from "@repo/constants/screens";
+import { IApiError, ICreateMove, IMove, IYard } from "@repo/models";
+import { useFormatDate } from "@repo/ui/hooks";
 import {
   QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import useAuthStore from "../stores/auth.store";
+import useMovesStore from "../stores/move.store";
+import useYardsStore from "../stores/yard.store";
 import {
-  fetchUnassignedMoves,
   assignMove,
+  fetchAssignedMove,
+  fetchCars,
+  fetchMoveReasons,
   fetchMovesHistory,
   fetchPendingMove,
+  fetchUnassignedMoves,
   sendMoveApi,
-  fetchMoveReasons,
-  fetchCars,
 } from "./actions";
 
 function useTaskPanel() {
@@ -33,7 +34,8 @@ function useTaskPanel() {
   const [callError, setCallError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [openCancelledMoveModal, setOpenCancelledMoveModal] = useState<boolean>(false);
+  const [openCancelledMoveModal, setOpenCancelledMoveModal] =
+    useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [selectedTask, setSelectedTask] = useState<IMove | null>(null);
   const [currentInspectionListPage, setCurrentInspectionListPage] =
@@ -44,6 +46,19 @@ function useTaskPanel() {
   const { assignedMove, setAssignedMove } = useMovesStore();
   const { authToken } = useAuthStore();
   const router = useRouter();
+
+  const { data: assignedMoveFromDb } = useQuery({
+    queryKey: ["assigned-move"],
+    queryFn: () => fetchAssignedMove(authToken ?? ""),
+    refetchInterval: SHORT_REFETCH_TIME,
+    enabled: !!authToken,
+  });
+
+  if (assignedMoveFromDb && assignedMoveFromDb.id !== assignedMove?.id) {
+    setAssignedMove(assignedMoveFromDb);
+  } else if (!assignedMoveFromDb && assignedMove) {
+    setAssignedMove(null);
+  }
 
   const {
     mutate,
@@ -66,6 +81,7 @@ function useTaskPanel() {
       if (data) {
         setAssignedMove(data);
       }
+      queryClient.invalidateQueries({ queryKey: ["assigned-move"] });
       queryClient.invalidateQueries({ queryKey: ["pending-moves"] });
       queryClient.invalidateQueries({ queryKey: ["unassigned_moves"] });
     },
@@ -125,13 +141,13 @@ function useTaskPanel() {
   });
 
   const checkCancelledMove = (move: IMove) => {
-    return moveHistoryData?.data.find(item => item.id === move.id);
-  }
+    return moveHistoryData?.data.find((item) => item.id === move.id);
+  };
 
   const unassignedCurrentTask = () => {
     setAssignedMove(null);
     setOpenCancelledMoveModal(false);
-  }
+  };
 
   function goToForms() {
     setLoading(true);
@@ -174,7 +190,7 @@ function useTaskPanel() {
     errorMessage,
     setCallError,
     setOpenModal,
-    openCancelledMoveModal, 
+    openCancelledMoveModal,
     setOpenCancelledMoveModal,
     unassignedCurrentTask,
     selectedTask,
@@ -269,10 +285,4 @@ const useCars = (lineId: any) => {
   });
 };
 
-export {
-  useTaskPanel,
-  useSendMove,
-  useMoveOrder,
-  useMoveReasons,
-  useCars,
-};
+export { useCars, useMoveOrder, useMoveReasons, useSendMove, useTaskPanel };

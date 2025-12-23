@@ -66,3 +66,10 @@ export const InputTitle = styled.span<{
   margin-bottom: ${metrics.smallPadding};
   ${({ size }) => sizeStyles[size]}
 `;
+
+export const LimitWarningText = styled.p`
+  font-size: 12px;
+  color: red;
+  text-align: left;
+  margin-top: 5px;
+`;

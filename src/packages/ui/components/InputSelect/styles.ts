@@ -25,6 +25,13 @@ export const DataListInput = styled.input<SelectProps>`
     color: ${colors.blueGray};
   }
 
+  &::-webkit-calendar-picker-indicator {
+    opacity: 1 !important;
+    cursor: pointer;
+    background-color: transparent;
+    transition: 0.2s;
+  }
+
   ${(props) =>
     props.$size === "small" &&
     css`

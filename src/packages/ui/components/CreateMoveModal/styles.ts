@@ -28,6 +28,14 @@ export const ModalContent = styled.div<SelectProps>`
   position: relative;
   max-height: 70%; /* When it reaches 80% of the screen height, activate the scroll */
   overflow-y: auto;
+
+  @media (max-width: 1350px) {
+    ${(props) =>
+      !props.$isMobile &&
+      css`
+        width: 60%;
+      `}
+  }
 `;
 
 export const TitleView = styled.div`

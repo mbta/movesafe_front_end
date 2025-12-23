@@ -7,7 +7,7 @@ export interface ICreateMove {
   move_to: string;
   move_done_by_user_id?: string;
   move_cars: ICreateMoveCar[];
-  yardmaster_user_id: string;
+  yardMotorperson_user_id?: string | null;
   created_at?: string;
 }
 

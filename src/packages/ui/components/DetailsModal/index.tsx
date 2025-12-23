@@ -1,16 +1,16 @@
 "use client";
-import React, { Dispatch, ReactNode, SetStateAction } from "react";
-import { Overlay, ModalContent, TitleContainer, Title } from "./styles";
-import { MdOutlineClose } from "react-icons/md";
+import { MoveStatus } from "@repo/constants/constants";
+import messages from "@repo/constants/messages";
 import { IApiError, IMoveDetails } from "@repo/models";
 import { Loader, TabView } from "@repo/ui/components";
+import { useFormatString } from "@repo/ui/hooks";
+import React, { Dispatch, ReactNode, SetStateAction } from "react";
+import { MdOutlineClose } from "react-icons/md";
 import DetailsSummary from "../DetailsSummary";
+import HistoryTabContent from "../HistoryTabContent";
 import InspectionTabContent from "../InspectionTabContent";
 import SignaturesTabContent from "../SignaturesTabContent";
-import HistoryTabContent from "../HistoryTabContent";
-import { useFormatString } from "@repo/ui/hooks";
-import messages from "@repo/constants/messages";
-import { MoveStatus } from "@repo/constants/constants";
+import { ModalContent, Overlay, Title, TitleContainer } from "./styles";
 
 interface DetailsModalProps {
   show: boolean;
@@ -98,7 +98,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
   const tabOptions: string[] = [
     ...data.inspections.map((e) => e.inspection_form.short_name),
     "Signature",
-    "Employee History",
+    "Move History",
   ];
 
   const tabData: ReactNode[] = [
@@ -107,6 +107,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
         key={`inspection-${e.id}`}
         data={e}
         moveCars={moveCarsSerialNumbers}
+        status={data.status}
       />
     )),
     <SignaturesTabContent
