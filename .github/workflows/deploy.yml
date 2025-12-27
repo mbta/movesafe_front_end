@@ -21,6 +21,14 @@ on:
         required: true
         type: string
         description: S3 bucket for the mobile build
+      web-cloudfront-distribution-id:
+        required: true
+        type: string
+        description: CloudFront distribution ID for web
+      mobile-cloudfront-distribution-id:
+        required: true
+        type: string
+        description: CloudFront distribution ID for mobile
     secrets:
       AWS_ROLE_ARN:
         required: true
@@ -93,6 +101,12 @@ jobs:
             --region ${{ inputs.aws-region }} \
             --delete
 
+      - name: Invalidate web CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ inputs.web-cloudfront-distribution-id }} \
+            --paths "/*"
+
       # - name: Sync mobile output to S3
       #   run: |
       #     aws s3 sync \
@@ -100,6 +114,12 @@ jobs:
       #       "s3://${{ inputs.mobile-bucket }}/" \
       #       --region ${{ inputs.aws-region }} \
       #       --delete
+
+      # - name: Invalidate mobile CloudFront cache
+      #   run: |
+      #     aws cloudfront create-invalidation \
+      #       --distribution-id ${{ inputs.mobile-cloudfront-distribution-id }} \
+      #       --paths "/*"
 
       - uses: mbta/actions/notify-slack-deploy@v2
         if: ${{ !cancelled() }}

@@ -20,4 +20,6 @@ jobs:
       version-name: ${{ github.ref_name }}
       web-bucket: web-dev-rdi-mbta-0
       mobile-bucket: mobile-dev-rdi-mbta-0
+      web-cloudfront-distribution-id: E6VGJSHMYOCHP
+      mobile-cloudfront-distribution-id: E1ZWNDGE0FKF05
     secrets: inherit
