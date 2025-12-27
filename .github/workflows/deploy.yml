@@ -93,13 +93,13 @@ jobs:
             --region ${{ inputs.aws-region }} \
             --delete
 
-      - name: Sync mobile output to S3
-        run: |
-          aws s3 sync \
-            src/apps/mobile/out/ \
-            "s3://${{ inputs.mobile-bucket }}/" \
-            --region ${{ inputs.aws-region }} \
-            --delete
+      # - name: Sync mobile output to S3
+      #   run: |
+      #     aws s3 sync \
+      #       src/apps/mobile/out/ \
+      #       "s3://${{ inputs.mobile-bucket }}/" \
+      #       --region ${{ inputs.aws-region }} \
+      #       --delete
 
       - uses: mbta/actions/notify-slack-deploy@v2
         if: ${{ !cancelled() }}
