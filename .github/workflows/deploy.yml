@@ -101,11 +101,11 @@ jobs:
             --region ${{ inputs.aws-region }} \
             --delete
 
-      - name: Invalidate web CloudFront cache
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ inputs.web-cloudfront-distribution-id }} \
-            --paths "/*"
+      # - name: Invalidate web CloudFront cache
+      #   run: |
+      #     aws cloudfront create-invalidation \
+      #       --distribution-id ${{ inputs.web-cloudfront-distribution-id }} \
+      #       --paths "/*"
 
       - name: Sync mobile output to S3
         run: |
