@@ -87,11 +87,6 @@ jobs:
           restore-keys: ${{ needs.setup.outputs.cache-key-node-modules }}
           fail-on-cache-miss: true
 
-      # - name: Run lint
-      #   continue-on-error: true # Temporarily allow linting to fail while code quality is improved
-      #   working-directory: src
-      #   run: corepack yarn lint
-
       - name: Lint web app
         run: corepack yarn lint
         working-directory: src/apps/web
