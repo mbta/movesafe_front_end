@@ -1,0 +1,133 @@
+on:
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+      version-name:
+        required: true
+        type: string
+        description: descriptive id of what's deployed (release name, branch, etc.)
+      aws-region:
+        required: false
+        type: string
+        default: us-east-1
+        description: AWS region where the buckets live
+      web-bucket:
+        required: true
+        type: string
+        description: S3 bucket for the web build
+      mobile-bucket:
+        required: true
+        type: string
+        description: S3 bucket for the mobile build
+      web-cloudfront-distribution-id:
+        required: true
+        type: string
+        description: CloudFront distribution ID for web
+      mobile-cloudfront-distribution-id:
+        required: true
+        type: string
+        description: CloudFront distribution ID for mobile
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+      SLACK_WEBHOOK:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.env }}
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: ${{ inputs.env }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Cache ASDF runtime
+        uses: actions/cache@v4
+        with:
+          path: ~/.asdf
+          key: asdf-${{ hashFiles('.tool-versions') }}
+
+      - uses: asdf-vm/actions/install@v4
+
+      - name: Setup ASDF environment
+        uses: mbta/actions/reshim-asdf@v2
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        working-directory: src
+        run: corepack yarn install --frozen-lockfile
+
+      - name: Build web app
+        working-directory: src
+        env:
+          NEXT_PUBLIC_KEYCLOAK_ADDRESS: ${{ vars.NEXT_PUBLIC_KEYCLOAK_ADDRESS }}
+          NEXT_PUBLIC_KEYCLOAK_REALM: ${{ vars.NEXT_PUBLIC_KEYCLOAK_REALM }}
+          NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: ${{ vars.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+        run: corepack yarn build:web
+
+      - name: Build mobile app
+        working-directory: src
+        env:
+          NEXT_PUBLIC_KEYCLOAK_ADDRESS: ${{ vars.NEXT_PUBLIC_KEYCLOAK_ADDRESS }}
+          NEXT_PUBLIC_KEYCLOAK_REALM: ${{ vars.NEXT_PUBLIC_KEYCLOAK_REALM }}
+          NEXT_PUBLIC_KEYCLOAK_CLIENT_ID: ${{ vars.NEXT_PUBLIC_KEYCLOAK_CLIENT_ID }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+        run: corepack yarn build:mobile
+
+      - name: Sync web output to S3
+        run: |
+          aws s3 sync \
+            src/apps/web/out/ \
+            "s3://${{ inputs.web-bucket }}/" \
+            --region ${{ inputs.aws-region }} \
+            --delete
+
+      - name: Invalidate web CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ inputs.web-cloudfront-distribution-id }} \
+            --paths "/*"
+
+      - name: Sync mobile output to S3
+        run: |
+          aws s3 sync \
+            src/apps/mobile/out/ \
+            "s3://${{ inputs.mobile-bucket }}/" \
+            --region ${{ inputs.aws-region }} \
+            --delete
+
+      - name: Invalidate mobile CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ inputs.mobile-cloudfront-distribution-id }} \
+            --paths "/*"
+
+      - uses: mbta/actions/notify-slack-deploy@v2
+        if: ${{ !cancelled() }}
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          job-status: ${{ job.status }}
+          custom-message: |
+            Deployed MoveSafe Front End (${{ inputs.env }})
+            📦 Web bucket: ${{ inputs.web-bucket }}
+            📦 Mobile bucket: ${{ inputs.mobile-bucket }}
+            🔖 Version: ${{ inputs.version-name }}

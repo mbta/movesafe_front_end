@@ -1,0 +1,17 @@
+# MBTA Radix owns everything by default
+
+*       @mbta/radix
+
+## Frontend-specific manifests
+
+src/package.json
+src/yarn.lock
+src/turbo.json
+src/apps/**
+src/packages/**
+
+## Deployment configs
+
+.github/workflows/**
+azure-pipelines*.yml
+.tool-versions

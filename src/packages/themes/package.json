@@ -1,0 +1,16 @@
+{
+  "name": "@repo/themes",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./colors": "./src/colors.ts",
+    "./fonts": "./src/fonts.ts",
+    "./metrics": "./src/metrics.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

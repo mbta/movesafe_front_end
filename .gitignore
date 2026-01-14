@@ -1,0 +1,47 @@
+# Dependency directories
+node_modules/
+src/node_modules/
+src/apps/**/node_modules/
+src/packages/**/node_modules/
+
+# Yarn and Turbo cache
+.yarn/
+.yarnrc
+.pnp*
+.turbo/
+
+# Local env files
+.env
+.env.*
+
+# Build outputs
+src/.next/
+src/apps/web/.next/
+src/apps/web/out/
+src/apps/mobile/.next/
+src/apps/mobile/out/
+out/
+build/
+dist/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Misc
+.env.local.null
+
+# Private directories
+.private/
+
+# Azure Pipelines
+azure-pipelines*.yml
