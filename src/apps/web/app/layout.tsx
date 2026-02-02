@@ -1,11 +1,13 @@
 "use client";
-import { Inter } from "next/font/google";
-import Providers from "./context/providers";
-import { Header, MainContainer } from "@repo/ui/components";
-import { usePathname, useRouter } from "next/navigation";
+import "./stores/msal/msalBootstrap";
+
 import { ScreenNames } from "@repo/constants/screens";
-import useAuthStore from "./stores/auth.store";
+import { Header, MainContainer } from "@repo/ui/components";
+import { Inter } from "next/font/google";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+import Providers from "./context/providers";
+import useAuthStore from "./stores/auth.store";
 
 const inter = Inter({ subsets: ["latin"] });
 

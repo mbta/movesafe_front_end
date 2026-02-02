@@ -1,0 +1,118 @@
+trigger:
+  branches:
+    include:
+      - develop
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/s/.yarn
+  AWS_REGION: "us-east-2"
+  BUCKET_NAME_MOBILE: "s3-bck-mbta-frontend-mobile"
+  BUCKET_NAME_WEB: "s3-bck-mbta-frontend-web"
+  AWS_CREDENTIALS_ACCOUNT: "mbta-dev"
+
+stages:
+  - stage: Build
+    displayName: "Build Applications"
+    jobs:
+      - job: BuildJob
+        steps:
+          - task: NodeTool@0
+            displayName: "Install node 18.x"
+            inputs:
+              versionSpec: "18.20.2"
+
+          - script: npm install -g yarn@1.22.19
+            displayName: "Install yarn 1.22.19"
+
+          - task: Cache@2
+            inputs:
+              key: '"yarn" | "$(Agent.OS)" | src/yarn.lock'
+              restoreKeys: |
+                "yarn" | "$(Agent.OS)"
+                "yarn"
+              path: $(YARN_CACHE_FOLDER)
+            displayName: Cache Yarn packages
+
+          - script: |
+              cd src/apps/mobile
+              yarn install
+            displayName: "Install mobile dependencies"
+
+          - script: |
+              cd src/apps/mobile
+              yarn build
+            displayName: "Build mobile"
+
+          - script: |
+              cd src/apps/web
+              yarn install
+            displayName: "Install web dependencies"
+
+          - script: |
+              cd src/apps/web
+              yarn build
+            displayName: "Build web"
+
+          - publish: $(System.DefaultWorkingDirectory)/src/apps/mobile/out
+            artifact: mobile-drop
+            displayName: "Publish mobile artifact"
+
+          - publish: $(System.DefaultWorkingDirectory)/src/apps/web/out
+            artifact: web-drop
+            displayName: "Publish web artifact"
+
+  - stage: UploadToS3
+    displayName: "Upload Artifacts to S3"
+    dependsOn: Build
+    jobs:
+      - job: UploadJob
+        timeoutInMinutes: 10
+        steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: mobile-drop
+              path: $(Pipeline.Workspace)/mobile
+
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: web-drop
+              path: $(Pipeline.Workspace)/web
+          - task: Bash@3
+            displayName: "List downloaded artifacts"
+            inputs:
+              targetType: "inline"
+              script: |
+                echo "📁 Listing contents of mobile:"
+                ls -R $(Pipeline.Workspace)/mobile || echo "No files found or directory missing"
+
+                echo "📁 Listing contents of web:"
+                ls -R $(Pipeline.Workspace)/web || echo "No files found or directory missing"
+
+                echo "📄 Sample files in mobile:"
+                find $(Pipeline.Workspace)/mobile -type f | head -10
+
+                echo "📄 Sample files in web:"
+                find $(Pipeline.Workspace)/web -type f | head -10
+
+          - task: AWSCLI@1
+            displayName: "Upload MOBILE to S3"
+            inputs:
+              awsCredentials: "mbta-dev"
+              regionName: "us-east-2"
+              awsCommand: "s3"
+              awsSubCommand: "cp"
+              awsArguments: '--recursive "$(Pipeline.Workspace)/mobile/" "s3://$(BUCKET_NAME_MOBILE)/"'
+              failOnStandardError: true
+
+          - task: AWSCLI@1
+            displayName: "Upload WEB to S3"
+            inputs:
+              awsCredentials: "mbta-dev"
+              regionName: "us-east-2"
+              awsCommand: "s3"
+              awsSubCommand: "cp"
+              awsArguments: '--recursive "$(Pipeline.Workspace)/web/" "s3://$(BUCKET_NAME_WEB)/"'
+              failOnStandardError: true

@@ -125,6 +125,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
       setShowSuccess={setShowSignatureSuccess}
       setShowError={setShowSignatureError}
       setShowStatusError={setShowSignatureStatusError}
+      status={data.status}
     />,
     <HistoryTabContent key="history" logs={data.audit_logs} />,
   ];
