@@ -87,6 +87,7 @@ export default {
   LoginScreen: {
     title: "Login",
     signIn: "Sign In",
+    microsoftSignIn: "Sign in with Microsoft",
     welcome: "Welcome to the MBTA Move Safe",
     pwPlaceholder: "Enter your password",
     idPlaceholder: "Enter your ID Number",

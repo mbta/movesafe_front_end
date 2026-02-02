@@ -1,11 +1,13 @@
 "use client";
-import { useEffect, useRef } from "react";
-import { Inter } from "next/font/google";
-import { Header, MainContainer } from "@repo/ui/components";
-import { usePathname, useRouter } from "next/navigation";
+import "./stores/msal/msalBootstrap";
+
 import { ScreenNames } from "@repo/constants/screens";
-import { releaseMove } from "./inspection-forms/actions";
+import { Header, MainContainer } from "@repo/ui/components";
+import { Inter } from "next/font/google";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import Providers from "./context/providers";
+import { releaseMove } from "./inspection-forms/actions";
 import useAuthStore from "./stores/auth.store";
 import useMovesStore from "./stores/move.store";
 
@@ -48,7 +50,7 @@ export default function RootLayout({
       <body className={inter.className} style={{ margin: 0 }}>
         <Providers>
           {pathname !== ScreenNames.login && (
-            <Header 
+            <Header
               username={username}
               onLogout={onLogOutClick}
               onLogoClick={onLogoClick}

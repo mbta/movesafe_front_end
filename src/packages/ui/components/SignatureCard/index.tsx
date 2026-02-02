@@ -1,32 +1,32 @@
 "use client";
+import messages from "@repo/constants/messages";
+import { IYardPerson, SelectOption, SignatureTypes } from "@repo/models";
+import { colors, metrics } from "@repo/themes";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { AiOutlineSignature } from "react-icons/ai";
-import SignatureModal from "../SignatureModal";
+import {
+  MdOutlineChangeCircle,
+  MdOutlineVisibility,
+  MdOutlineVisibilityOff
+} from "react-icons/md";
 import IconButton from "../IconButton";
 import MainButton from "../MainButton";
-import Image from "next/image";
-import { colors, metrics } from "@repo/themes";
-import { IYardPerson, SelectOption, SignatureTypes } from "@repo/models";
-import Toast from "../Toast";
 import Select from "../Select";
-import messages from "@repo/constants/messages";
-import { 
-  MdOutlineVisibility, 
-  MdOutlineVisibilityOff, 
-  MdOutlineChangeCircle 
-} from "react-icons/md";
+import SignatureModal from "../SignatureModal";
+import Toast from "../Toast";
 import {
+  Badge,
+  BadgeAndName,
+  ButtonColumn,
   CardContainer,
+  ColumnContainer,
   IconColumn,
   InfoColumn,
-  ButtonColumn,
   Label,
-  BadgeAndName,
-  Badge,
+  LargeComboBox,
   Name,
   RowContainer,
-  ColumnContainer,
-  LargeComboBox,
 } from "./styles";
 
 interface SignatureCardProps {
@@ -145,7 +145,7 @@ const SignatureCard: React.FC<SignatureCardProps> = ({
                   <MainButton
                     onClick={handleSignClick}
                     primary={false}
-                    text={messages.Labels.addSign}
+                      text={messages.Labels.addSign}
                   />
                 )}
               </ButtonColumn>

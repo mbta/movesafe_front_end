@@ -1,10 +1,11 @@
 "use client";
-import React, { Dispatch, SetStateAction } from "react";
+import { MoveStatus } from "@repo/constants/constants";
+import messages from "@repo/constants/messages";
 import { IMoveDetailsSignature, SignatureTypes, User } from "@repo/models";
 import { SignatureCard, Toast } from "@repo/ui/components";
-import { RowContainer, SignatureContainer } from "./styles";
-import messages from "@repo/constants/messages";
 import { useFormatString } from "@repo/ui/hooks";
+import React, { Dispatch, SetStateAction } from "react";
+import { RowContainer, SignatureContainer } from "./styles";
 
 interface SignaturesTabContentProps {
   signatures: IMoveDetailsSignature[];
@@ -20,6 +21,7 @@ interface SignaturesTabContentProps {
   setShowStatusError: Dispatch<SetStateAction<boolean>>;
   setShowError: Dispatch<SetStateAction<boolean>>;
   setShowSuccess: Dispatch<SetStateAction<boolean>>;
+  status: string;
 }
 
 const SignaturesTabContent: React.FC<SignaturesTabContentProps> = ({
@@ -35,15 +37,18 @@ const SignaturesTabContent: React.FC<SignaturesTabContentProps> = ({
   showSuccess,
   setShowStatusError,
   setShowError,
-  setShowSuccess
+  setShowSuccess,
+  status,
 }: SignaturesTabContentProps) => {
   const stringFormatter = useFormatString();
   const hasYardMasterSignature: boolean = !!signatures.find(
     (signature) => signature.signature_type === SignatureTypes.yardmaster
   );
+  const isSignatureDisabled = status === MoveStatus.done
+  
   return (
     <>
-      {yardmaster && !hasYardMasterSignature && !isManagement && (
+      {yardmaster && !hasYardMasterSignature && !isManagement && !isSignatureDisabled && (
         <SignatureContainer>
           <SignatureCard
             label={stringFormatter.formatYardRole(SignatureTypes.yardmaster)}
