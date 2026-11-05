@@ -20,9 +20,9 @@ stages:
       - job: BuildJob
         steps:
           - task: NodeTool@0
-            displayName: "Install node 18.x"
+            displayName: "Install node 24.x"
             inputs:
-              versionSpec: "18.20.2"
+              versionSpec: "24.22.1"
 
           - script: npm install -g yarn@1.22.19
             displayName: "Install yarn 1.22.19"
